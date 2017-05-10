@@ -29,9 +29,10 @@ import           GHC.Generics
 import           Reflex
 import           Reflex.Dom
 import           Text.Read
+import           Language.Javascript.JSaddle.Monad (MonadJSM)
 
 
-type SupportsServantReflex t m = (Reflex t, TriggerEvent t m, PerformEvent t m, HasWebView (Performable m), MonadIO (Performable m))
+type SupportsServantReflex t m = (Reflex t, TriggerEvent t m, PerformEvent t m, HasWebView (Performable m), MonadIO (Performable m), MonadJSM (Performable m))
 
 -- | URI scheme to use
 data Scheme =

@@ -30,6 +30,8 @@ import           Servant.Common.BaseUrl     (BaseUrl, showBaseUrl,
                                              SupportsServantReflex)
 import           Servant.API.ContentTypes   (MimeUnrender(..), NoContent(..))
 import           Web.HttpApiData            (ToHttpApiData(..))
+import           Language.Javascript.JSaddle.Monad (MonadJSM)
+
 -------------------------------------------------------------------------------
 import           Servant.API.BasicAuth
 
@@ -255,6 +257,7 @@ performRequests reqMeth rs reqHost trigger = do
 -- | Issues a collection of requests when the supplied Event fires.  When ALL requests from a given firing complete, the results are collected and returned via the return Event.
 performSomeRequestsAsync
     :: (MonadIO (Performable m),
+        MonadJSM (Performable m),
         HasWebView (Performable m),
         PerformEvent t m,
         TriggerEvent t m,
@@ -269,8 +272,8 @@ performSomeRequestsAsync = performSomeRequestsAsync' newXMLHttpRequest . fmap re
 -- | A modified version or Reflex.Dom.Xhr.performRequestsAsync
 -- that accepts 'f (Either e (XhrRequestb))' events
 performSomeRequestsAsync'
-    :: (MonadIO (Performable m), PerformEvent t m, TriggerEvent t m, Traversable f)
-    => (XhrRequest b -> (a -> IO ()) -> Performable m XMLHttpRequest)
+    :: (MonadIO (Performable m), MonadJSM m2, PerformEvent t m, TriggerEvent t m, Traversable f)
+    => (XhrRequest b -> (a -> m2 ()) -> Performable m XMLHttpRequest)
     -> Event t (Performable m (f (Either Text (XhrRequest b)))) -> m (Event t (f (Either Text a)))
 performSomeRequestsAsync' newXhr req = performEventAsync $ ffor req $ \hrs cb -> do
   rs <- hrs
